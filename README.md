@@ -1,0 +1,1 @@
+# stripe_django_test
