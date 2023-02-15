@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+{% load static %}
+{% csrf_token %}
+{% for i in basket %}
+  {{ i.item.name }} - {{ i.quantity }}
+{% endfor %}
+  <html>
+    <head>
+      <title>Buy cool new product</title>
+      <script src="https://polyfill.io/v3/polyfill.min.js?version=3.52.1&features=fetch"></script>
+      <script src="https://js.stripe.com/v3/"></script>
+    </head>
+    <a href='{% url "order" %}'>order</a>
+  {% for item in items %}
+    <div class="product">
+      <div class="description">
+        <h3>{{ item.name }}</h3>
+        <h5>${{ item.get_display_price }}</h5>
+      </div>
+    </div>
+    <a href='{% url "item" item.id %}'>buy {{ item.name }}</a>
+    <button onclick="test('{% url "add" item.id %}')" id="add-button-{{item.id}}"">Add in basket</button>
+    <hr />
+  {% endfor %}
+  <script>
+      const csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+      function test(itemUrl) {
+        fetch(itemUrl, {
+          method: 'POST',
+          headers: {
+            'X-CSRFToken': csrftoken
+          }
+        })
+      }
+  </script>
+</html>
