@@ -45,9 +45,27 @@ class CancelView(TemplateView):
     template_name = 'cancel.html'
 
 
+def get_taxes(tax_basket_item):
+    taxes = []
+    for tax in tax_basket_item:
+        if not tax.tax_id:
+            new_tax = stripe.TaxRate.create(
+                display_name=tax.name,
+                inclusive=False,
+                percentage=tax.tax,
+                country="US",
+                state="CA",
+                jurisdiction="US - CA",
+            )
+            tax.tax_id = new_tax['id']
+            tax.save()
+        taxes.append(tax.tax_id)
+    return taxes
+
+
 class CreateCheckoutSessionForOrderView(View):
     def get(self, request, *args, **kwargs):
-        YOUR_DOMAIN = 'http://0.0.0.0:8000'
+        YOUR_DOMAIN = 'http://51.250.84.205:8000/'
         session_key = request.session.session_key
         order = Order.objects.filter(session=session_key)
         basket_items_all = BasketItem.objects.filter(order=order[0])
@@ -73,21 +91,7 @@ class CreateCheckoutSessionForOrderView(View):
         for basket_item in basket_items_all:
             tax_basket_item = basket_item.item.tax.all()
 
-            taxes = []
-
-            for tax in tax_basket_item:
-                if not tax.tax_id:
-                    new_tax = stripe.TaxRate.create(
-                        display_name=tax.name,
-                        inclusive=False,
-                        percentage=tax.tax,
-                        country="US",
-                        state="CA",
-                        jurisdiction="US - CA",
-                    )
-                    tax.tax_id = new_tax['id']
-                    tax.save()
-                taxes.append(tax.tax_id)
+            taxes = get_taxes(tax_basket_item)
 
             items.append({
                 'price_data': {
@@ -123,7 +127,8 @@ class CreateCheckoutSessionView(View):
     def get(self, request, *args, **kwargs):
         product_id = self.kwargs['pk']
         product = Item.objects.get(id=product_id)
-        YOUR_DOMAIN = 'http://0.0.0.0:8000'
+        YOUR_DOMAIN = 'http://51.250.84.205:8000/'
+        taxes = get_taxes(product.tax.all())
 
         session = stripe.checkout.Session.create(
             payment_method_types=['card'],
@@ -136,6 +141,7 @@ class CreateCheckoutSessionView(View):
                     'unit_amount': product.price,
                 },
                 'quantity': 1,
+                'tax_rates': taxes
             }],
             metadata={
                 'product_id': product.id,
