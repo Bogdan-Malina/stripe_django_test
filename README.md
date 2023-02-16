@@ -48,7 +48,7 @@ python manage.py makemigrations
 ```
 python manage.py migrate
 ```
-Создать .env файл в директории stripe_test
+Создать .env файл в директории stripe_test:
 ```
 STRIPE_PUBLIC_KEY=(Находится в личном кабинете на stripe.com)
 STRIPE_SECRET_KEY=(Находится в личном кабинете на stripe.com)
