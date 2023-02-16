@@ -48,6 +48,13 @@ python manage.py makemigrations
 ```
 python manage.py migrate
 ```
+Создать .env файл в директории stripe_test
+```
+STRIPE_PUBLIC_KEY=(Находится в личном кабинете на stripe.com)
+STRIPE_SECRET_KEY=(Находится в личном кабинете на stripe.com)
+STRIPE_WEBHOOK_SECRET=(Находится в личном кабинете на stripe.com)
+SECRET_KEY=(Ключ приложения django)
+```
 
 Запустить проект:
 
